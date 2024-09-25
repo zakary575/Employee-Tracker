@@ -31,20 +31,41 @@ pool.query(
 const getRoleTable = () => {
 pool.query(
     `SELECT role.id, role.title, department.name, role.salary 
-     FROM role 
-     INNER JOIN role.department_id = department.id`
+    FROM role
+    RIGHT JOIN department ON role.department_id = department.id`
 )
 }
 
 const getEmployeeTable =() =>{
 pool.query(
-    `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, manger.first_name + '' + manger.last_name AS manager 
-     FROM employee 
-     LEFT JOIN employees ON employee.role_id = role.id 
-     LEFT JOIN employee manager ON employee.manager_id = manager.id 
-     LEFT JOIN role ON role.department_id = department.id`
+    `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT (manager.first_name,' ', manager.last_name) AS manager 
+    FROM employee
+    RIGHT JOIN role ON employee.role_id = role.id 
+    LEFT JOIN employee manager ON employee.manager_id = manager.id 
+    RIGHT JOIN department ON role.department_id = department.id`
 )    
 }
+
+const addDepartment = (name) => {
+pool.query(
+    `INSERT INTO department (name)
+    VALUES (${name})`
+)
+}
+
+const addRole = (title,salary,department_id) => {
+pool.query(
+    `INSERT INTO role (title, salary, department_id)
+    VALUES (${title},${salary},${department_id})`
+)
+}
+
+const addEmployee = (firstName,LastName,roleId,managerId) => {
+    pool.query(
+        `INSERT INTO role (first_name, last_name, role_id, manager_id)
+        VALUES (${first_name},${last_name},${role_id},${manager_id})`
+    )
+    }
 
 module.exports ={
     getDeparmentTable(),
