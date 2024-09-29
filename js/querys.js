@@ -24,7 +24,7 @@ const getDepartmentTable = () => {
     `SELECT * 
      FROM department`,
     function (err, { rows }) {
-      console.log(rows);
+      console.table(rows);
     }
   );
 };
@@ -35,7 +35,7 @@ const getRoleTable = () => {
     FROM role
     RIGHT JOIN department ON role.department_id = department.id`,
     function (err, { rows }) {
-      console.log(rows);
+      console.table(rows);
     }
   );
 };
@@ -48,7 +48,7 @@ const getEmployeeTable = () => {
     LEFT JOIN employee manager ON employee.manager_id = manager.id 
     RIGHT JOIN department ON role.department_id = department.id`,
     function (err, { rows }) {
-      console.log(rows);
+      console.table(rows);
     }
   );
 };
@@ -56,36 +56,69 @@ const getEmployeeTable = () => {
 const addDepartment = (name) => {
   pool.query(
     `INSERT INTO department (name)
-    VALUES (${name})`
+    VALUES ($1)`,
+    [name],
+    (err) => {
+      if (err) {
+        console.log(err);
+      }
+      console.log("Department added!");
+    }
   );
 };
 
 const addRole = (title, salary, department_id) => {
   pool.query(
     `INSERT INTO role (title, salary, department_id)
-    VALUES (${title},${salary},${department_id})`
+    VALUES ($1,$2,$3)`,
+    [title],
+    [salary],
+    [department_id],
+    (err) => {
+      if (err) {
+        console.log(err);
+      }
+      console.log("Role added!");
+    }
   );
 };
 
 const addEmployee = (firstName, LastName, roleId, managerId) => {
   pool.query(
     `INSERT INTO employee (first_name, last_name, role_id, manager_id)
-        VALUES (${first_name},${last_name},${role_id},${manager_id})`
+        VALUES ($1,$2,$3,$4)`,
+        [firstName],
+        [LastName],
+        [roleId],
+        [managerId],
+        (err) => {
+            if (err) {
+              console.log(err);
+            }
+            console.log("Employee added!");
+          }
+        );
+      };
+
+const getDepartments = () => {
+  return pool.query(
+    `SELECT *
+        FROM department`
   );
 };
 
-const getDepartments = () => {
-   let departments = ''
-   pool.query(
-    `SELECT name
-        FROM department`,
-    function (err, {rows}) {
-    console.log(rows)
-    departments = rows
-    }
-  )
-  console.log(departments)
-  return departments;
+const getRoles = () => {
+  return pool.query(
+    `SELECT id,title
+            FROM role`
+  );
+};
+
+const getEmployees = () => {
+  return pool.query(
+    `SELECT id,CONCAT (employee.first_name,' ', employee.last_name) AS employees   
+        FROM employee`
+  );
 };
 
 module.exports = {
@@ -95,6 +128,9 @@ module.exports = {
   addDepartment,
   addRole,
   addEmployee,
+  getDepartments,
+  getRoles,
+  getEmployees,
 };
 
-console.log(getDepartments())
+console.log(getDepartments());
