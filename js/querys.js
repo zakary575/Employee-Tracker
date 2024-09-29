@@ -44,7 +44,7 @@ const getEmployeeTable = () => {
   pool.query(
     `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT (manager.first_name,' ', manager.last_name) AS manager 
     FROM employee
-    RIGHT JOIN role ON employee.role_id = role.id 
+    LEFT JOIN role ON employee.role_id = role.id 
     LEFT JOIN employee manager ON employee.manager_id = manager.id 
     RIGHT JOIN department ON role.department_id = department.id`,
     function (err, { rows }) {
@@ -71,9 +71,7 @@ const addRole = (title, salary, department_id) => {
   pool.query(
     `INSERT INTO role (title, salary, department_id)
     VALUES ($1,$2,$3)`,
-    [title],
-    [salary],
-    [department_id],
+    [title, salary, department_id],
     (err) => {
       if (err) {
         console.log(err);
@@ -87,18 +85,15 @@ const addEmployee = (firstName, LastName, roleId, managerId) => {
   pool.query(
     `INSERT INTO employee (first_name, last_name, role_id, manager_id)
         VALUES ($1,$2,$3,$4)`,
-        [firstName],
-        [LastName],
-        [roleId],
-        [managerId],
-        (err) => {
-            if (err) {
-              console.log(err);
-            }
-            console.log("Employee added!");
-          }
-        );
-      };
+    [firstName, LastName, roleId, managerId],
+    (err) => {
+      if (err) {
+        console.log(err);
+      }
+      console.log("Employee added!");
+    }
+  );
+};
 
 const getDepartments = () => {
   return pool.query(
@@ -121,6 +116,21 @@ const getEmployees = () => {
   );
 };
 
+const updateEmployee = (roleId, employeeId,managerId) => {
+  return pool.query(
+    `UPDATE employee 
+SET role_id = $1, manager_id = $3
+WHERE id = $2`,
+    [roleId, employeeId,managerId],
+    (err) => {
+      if (err) {
+        console.log(err);
+      }
+      console.log("Employee updated!");
+    }
+  );
+};
+
 module.exports = {
   getDepartmentTable,
   getRoleTable,
@@ -131,6 +141,5 @@ module.exports = {
   getDepartments,
   getRoles,
   getEmployees,
+  updateEmployee,
 };
-
-console.log(getDepartments());

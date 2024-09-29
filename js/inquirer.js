@@ -9,13 +9,17 @@ const {
   getDepartments,
   getRoles,
   getEmployees,
+  updateEmployee,
 } = require("./querys");
 
 const addEmployeeInquirer = () => {
   getRoles().then(function ({ rows }) {
-    const roles = rows.map(({ title, id }) => ({ name:title, value: id }));
+    const roles = rows.map(({ title, id }) => ({ name: title, value: id }));
     getEmployees().then(function ({ rows }) {
-      const employees = rows.map(({ employees, id }) => ({ name:employees, value: id, }));
+      const employees = rows.map(({ employees, id }) => ({
+        name: employees,
+        value: id,
+      }));
       inquirer
         .prompt([
           {
@@ -42,19 +46,19 @@ const addEmployeeInquirer = () => {
           },
         ])
         .then((answers) => {
-          addEmployee(answers.firstName,answers.lastName,answers.roleId,answers.managerId)
-          console.log(answers);
+          addEmployee(
+            answers.firstName,
+            answers.lastName,
+            answers.roleId,
+            answers.managerId
+          );
+          setTimeout(() => {
+            menu();
+          }, 250);
         });
     });
   });
 };
-
-// department = getDepartments().then(function (err, { rows }) {
-//   console.log(rows);
-//   const departments = rows.map(({ name }) => name);
-//   console.log(departments);
-//   return departments;
-// });
 
 const addRoleInquirer = () => {
   getDepartments().then(function ({ rows }) {
@@ -80,8 +84,9 @@ const addRoleInquirer = () => {
       ])
       .then((answers) => {
         addRole(answers.title, answers.salary, answers.departmentId);
-        console.log(answers);
-        // { title: 'test', salary: 'test', departmentId: 1 }
+        setTimeout(() => {
+          menu();
+        }, 250);
       });
   });
 };
@@ -97,7 +102,49 @@ const addDepartmentInquirer = () => {
     ])
     .then((answers) => {
       addDepartment(answers.department);
+      setTimeout(() => {
+        menu();
+      }, 250);
     });
+};
+
+const updateEmployeeInquirer = () => {
+  getRoles().then(function ({ rows }) {
+    const roles = rows.map(({ title, id }) => ({ name: title, value: id }));
+    getEmployees().then(function ({ rows }) {
+      const employees = rows.map(({ employees, id }) => ({
+        name: employees,
+        value: id,
+      }));
+      inquirer
+        .prompt([
+          {
+            type: "list",
+            name: "employeeId",
+            message: "What employee would you like to update?",
+            choices: employees,
+          },
+          {
+            type: "list",
+            name: "roleId",
+            message: "What employee is there new role?",
+            choices: roles,
+          },
+          {
+            type: "list",
+            name: "managerId",
+            message: "Who is there new manager?",
+            choices: employees,
+          },
+        ])
+        .then((answers) => {
+          updateEmployee(answers.roleId, answers.employeeId, answers.managerId);
+          setTimeout(() => {
+            menu();
+          }, 250);
+        });
+    });
+  });
 };
 
 const menu = () => {
@@ -114,6 +161,7 @@ const menu = () => {
           "Add Role",
           "View All Departments",
           "Add Department",
+          "Update an Employee",
           "Quit",
         ],
       },
@@ -122,27 +170,33 @@ const menu = () => {
       switch (answers.menu) {
         case "View All Employees":
           getEmployeeTable();
-          menu();
+          setTimeout(() => {
+            menu();
+          }, 250);
           break;
         case "Add Employee":
           addEmployeeInquirer();
-          //   menu();
           break;
         case "View All Roles":
           getRoleTable();
-          //   menu();
+          setTimeout(() => {
+            menu();
+          }, 250);
           break;
         case "Add Role":
           addRoleInquirer();
-          //   menu();
           break;
         case "View All Departments":
           getDepartmentTable();
-          //   menu();
+          setTimeout(() => {
+            menu();
+          }, 250);
           break;
         case "Add Department":
           addDepartmentInquirer();
-          //   menu();
+          break;
+        case "Update an Employee":
+          updateEmployeeInquirer();
           break;
         case "Quit":
           process.exit();
