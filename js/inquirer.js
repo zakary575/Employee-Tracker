@@ -20,6 +20,7 @@ const addEmployeeInquirer = () => {
         name: employees,
         value: id,
       }));
+      employees.unshift({ name: "None", value: null });
       inquirer
         .prompt([
           {
@@ -115,7 +116,12 @@ const updateEmployeeInquirer = () => {
       const employees = rows.map(({ employees, id }) => ({
         name: employees,
         value: id,
+      }))
+      const managers = rows.map(({ employees, id }) => ({
+        name: employees,
+        value: id,
       }));
+      managers.unshift({ name: "None", value: null })
       inquirer
         .prompt([
           {
@@ -134,11 +140,11 @@ const updateEmployeeInquirer = () => {
             type: "list",
             name: "managerId",
             message: "Who is there new manager?",
-            choices: employees,
+            choices: managers,
           },
         ])
         .then((answers) => {
-          updateEmployee(answers.roleId, answers.employeeId, answers.managerId);
+          updateEmployee(answers.roleId, answers.employeeId,answers.managerId);
           setTimeout(() => {
             menu();
           }, 250);
@@ -161,15 +167,15 @@ const menu = () => {
           "Add Role",
           "View All Departments",
           "Add Department",
-          "Update an Employee",
+          "Update Employee Role",
           "Quit",
         ],
       },
     ])
-    .then((answers) => {
+    .then(async (answers) => {
       switch (answers.menu) {
         case "View All Employees":
-          getEmployeeTable();
+          getEmployeeTable()
           setTimeout(() => {
             menu();
           }, 250);
@@ -195,7 +201,7 @@ const menu = () => {
         case "Add Department":
           addDepartmentInquirer();
           break;
-        case "Update an Employee":
+        case "Update Employee Role":
           updateEmployeeInquirer();
           break;
         case "Quit":
@@ -207,4 +213,4 @@ const menu = () => {
     });
 };
 
-menu();
+module.exports = { menu };

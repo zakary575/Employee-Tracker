@@ -1,5 +1,6 @@
 const express = require("express");
 const { Pool } = require("pg");
+const { menu } = require("./inquirer");
 
 const PORT = process.env.PORT || 3001;
 const app = express();
@@ -22,7 +23,8 @@ pool.connect();
 const getDepartmentTable = () => {
   pool.query(
     `SELECT * 
-     FROM department`,
+     FROM department
+     ORDER BY id`,
     function (err, { rows }) {
       console.table(rows);
     }
@@ -33,7 +35,8 @@ const getRoleTable = () => {
   pool.query(
     `SELECT role.id, role.title, department.name, role.salary 
     FROM role
-    RIGHT JOIN department ON role.department_id = department.id`,
+    LEFT JOIN department ON role.department_id = department.id
+    ORDER BY id`,
     function (err, { rows }) {
       console.table(rows);
     }
@@ -41,12 +44,13 @@ const getRoleTable = () => {
 };
 
 const getEmployeeTable = () => {
-  pool.query(
+  return pool.query(
     `SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name AS department, role.salary, CONCAT (manager.first_name,' ', manager.last_name) AS manager 
     FROM employee
     LEFT JOIN role ON employee.role_id = role.id 
     LEFT JOIN employee manager ON employee.manager_id = manager.id 
-    RIGHT JOIN department ON role.department_id = department.id`,
+    LEFT JOIN department ON role.department_id = department.id
+    ORDER BY id`,
     function (err, { rows }) {
       console.table(rows);
     }
@@ -116,12 +120,12 @@ const getEmployees = () => {
   );
 };
 
-const updateEmployee = (roleId, employeeId,managerId) => {
+const updateEmployee = (roleId, employeeId, managerId) => {
   return pool.query(
     `UPDATE employee 
 SET role_id = $1, manager_id = $3
 WHERE id = $2`,
-    [roleId, employeeId,managerId],
+    [roleId, employeeId, managerId],
     (err) => {
       if (err) {
         console.log(err);
